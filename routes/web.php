@@ -19,7 +19,9 @@ $router->get('/', function () use ($router) {
 
 $router->get('/GetAllInventoryItems', 'InventoryController@index');
 $router->get('/GetSpecificInventoryItem/{id}', 'InventoryController@show');
+$router->get('/SortInventoryItems/{column}/{order}', 'InventoryController@sort');
+$router->get('/InventoryValuationReport/{type}', 'InventoryController@valuationReport');
 $router->post('/CreateInventoryItem', 'InventoryController@store');
 $router->put('/UpdateInventoryItem/{id}', 'InventoryController@update');
 $router->delete('/DeleteInventoryItem/{id}', 'InventoryController@destroy');
-$router->get('/SortInventoryItems/{column}/{order}', 'InventoryController@sort');
+

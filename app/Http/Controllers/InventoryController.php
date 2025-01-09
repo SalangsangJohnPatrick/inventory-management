@@ -87,7 +87,7 @@ class InventoryController extends Controller
     public function sort($column, $order)
     {
         // Ensure the column is valid by allowing only a set of columns
-        $validColumns = ['id', 'brand_name', 'type', 'quantity_on_hand', 'price', 'inventory_value', 'sales_value'];
+        $validColumns = ['id', 'brand_name', 'type', 'quantity_on_hand', 'price', 'inventory_value', 'products_sold', 'sales_value'];
 
         if (!in_array($column, $validColumns)) {
             return response()->json(['message'=> 'Invalid column name'], 400);
@@ -100,5 +100,24 @@ class InventoryController extends Controller
         $sortedItems = Inventory::orderBy($column, $order)->get();
 
         return response()->json($sortedItems);
+    }
+
+    // GET inventory and sales value report by inventory type
+    public function valuationReport($type)
+    {
+        $inventoryItems = Inventory::where('type', $type);
+
+        $totalQuantity = $inventoryItems->sum('quantity_on_hand');
+        $totalInventoryValue = $inventoryItems->sum('inventory_value');
+        $totalProductsSold = $inventoryItems->sum('products_sold');
+        $totalSalesValue = $inventoryItems->sum('sales_value');
+
+        return response()->json([
+            'type'=> $type,
+            'totalQuantity'=> $totalQuantity,
+            'totalInventoryValue' => $totalInventoryValue,
+            'totalProductsSold'=> $totalProductsSold,
+            'totalSalesValue' => $totalSalesValue,
+        ]);
     }
 }
