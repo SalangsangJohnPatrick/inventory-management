@@ -90,11 +90,11 @@ class InventoryController extends Controller
         $validColumns = ['id', 'brand_name', 'type', 'quantity_on_hand', 'price', 'inventory_value', 'products_sold', 'sales_value'];
 
         if (!in_array($column, $validColumns)) {
-            return response()->json(['message'=> 'Invalid column name'], 400);
+            return response()->json(['message' => 'Invalid column name'], 400);
         }
 
-        if (!in_array(strtolower($order), ['asc','desc'])) {
-            return response()->json(['message'=> 'Invalid order value. Must be "asc" or "desc"'], 400);
+        if (!in_array(strtolower($order), ['asc', 'desc'])) {
+            return response()->json(['message' => 'Invalid order value. Must be "asc" or "desc"'], 400);
         }
 
         $sortedItems = Inventory::orderBy($column, $order)->get();
@@ -107,16 +107,21 @@ class InventoryController extends Controller
     {
         $inventoryItems = Inventory::where('type', $type);
 
+        // If no items found for the type
+        if ($inventoryItems->count() == 0) {
+            return response()->json(['error' => 'No inventory found for this type.'], 404);
+        }
+
         $totalQuantity = $inventoryItems->sum('quantity_on_hand');
         $totalInventoryValue = $inventoryItems->sum('inventory_value');
         $totalProductsSold = $inventoryItems->sum('products_sold');
         $totalSalesValue = $inventoryItems->sum('sales_value');
 
         return response()->json([
-            'type'=> $type,
-            'totalQuantity'=> $totalQuantity,
+            'type' => $type,
+            'totalQuantity' => $totalQuantity,
             'totalInventoryValue' => $totalInventoryValue,
-            'totalProductsSold'=> $totalProductsSold,
+            'totalProductsSold' => $totalProductsSold,
             'totalSalesValue' => $totalSalesValue,
         ]);
     }
