@@ -34,7 +34,7 @@ class InventoryController extends Controller
             'type' => 'required|string|max:255',
             'quantity_on_hand' => 'required|integer',
             'price' => 'required|numeric',
-            'products_sold'=> 'required|integer',
+            'products_sold' => 'required|integer',
         ]);
 
         // If validation fails, return errors
@@ -61,7 +61,7 @@ class InventoryController extends Controller
             'type' => 'required|string|max:255',
             'quantity_on_hand' => 'required|integer',
             'price' => 'required|numeric',
-            'products_sold'=> 'required|integer',
+            'products_sold' => 'required|integer',
         ]);
 
         $product->update($validator->validated());
@@ -81,5 +81,24 @@ class InventoryController extends Controller
         $product->delete();
 
         return response()->json(['message' => 'Product deleted successfully']);
+    }
+
+    // GET all products sorted by a specific column and order
+    public function sort($column, $order)
+    {
+        // Ensure the column is valid by allowing only a set of columns
+        $validColumns = ['id', 'brand_name', 'type', 'quantity_on_hand', 'price', 'inventory_value', 'sales_value'];
+
+        if (!in_array($column, $validColumns)) {
+            return response()->json(['message'=> 'Invalid column name'], 400);
+        }
+
+        if (!in_array(strtolower($order), ['asc','desc'])) {
+            return response()->json(['message'=> 'Invalid order value. Must be "asc" or "desc"'], 400);
+        }
+
+        $sortedItems = Inventory::orderBy($column, $order)->get();
+
+        return response()->json($sortedItems);
     }
 }

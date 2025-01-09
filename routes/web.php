@@ -17,8 +17,9 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('/inventory', 'InventoryController@index');
-$router->get('/inventory/{id}', 'InventoryController@show');
-$router->post('/inventory', 'InventoryController@store');
-$router->put('/inventory/{id}', 'InventoryController@update');
-$router->delete('/inventory/{id}', 'InventoryController@destroy');
+$router->get('/GetAllInventoryItems', 'InventoryController@index');
+$router->get('/GetSpecificInventoryItem/{id}', 'InventoryController@show');
+$router->post('/CreateInventoryItem', 'InventoryController@store');
+$router->put('/UpdateInventoryItem/{id}', 'InventoryController@update');
+$router->delete('/DeleteInventoryItem/{id}', 'InventoryController@destroy');
+$router->get('/SortInventoryItems/{column}/{order}', 'InventoryController@sort');
