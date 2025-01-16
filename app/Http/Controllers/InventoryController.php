@@ -125,4 +125,60 @@ class InventoryController extends Controller
             'totalSalesValue' => $totalSalesValue,
         ]);
     }
+
+    // POST import inventory items
+    public function import(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'file' => 'required|mimes:csv,txt|max:2048',  // Corrected line
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 400);
+        }
+
+        $file = $request->file('file');
+        $path = $file->getRealPath();
+
+        if (($handle = fopen($path, "r")) !== FALSE) {
+            fgetcsv($handle);  // Skip the header row
+
+            $inventoryData = [];
+
+            // Read each row and store the data
+            while (($row = fgetcsv($handle)) !== FALSE) {
+                $inventoryData[] = [
+                    'brand_name' => $row[0],
+                    'type' => $row[1],
+                    'quantity_on_hand' => (int)$row[2],
+                    'price' => (float)$row[3],
+                    'products_sold' => (int)$row[4],
+                ];
+            }
+
+            fclose($handle);
+
+            // Loop through the imported data and validate each row
+            foreach ($inventoryData as $item) {
+                $validator = Validator::make($item, [
+                    'brand_name' => 'required|string|max:255',
+                    'type' => 'required|string|max:255',
+                    'quantity_on_hand' => 'required|integer|min:0',
+                    'price' => 'required|numeric|min:0',
+                    'products_sold' => 'required|integer|min:0',
+                ]);
+
+                if ($validator->fails()) {
+                    return response()->json(['errors' => $validator->errors()], 400);
+                }
+
+                // Save the valid item to the database
+                Inventory::create($item);
+            }
+
+            return response()->json(['success' => 'Inventory imported successfully'], 200);
+        }
+
+        return response()->json(['error' => 'Unable to import inventory.'], 500);
+    }
 }
