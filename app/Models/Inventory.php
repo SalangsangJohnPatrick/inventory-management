@@ -24,9 +24,22 @@ class Inventory extends Model
     {
         parent::boot();
 
+        // Calculate inventory and sales values when creating the record
         static::creating(function ($inventory) {
             $inventory->inventory_value = $inventory->price * $inventory->quantity_on_hand;
             $inventory->sales_value = $inventory->price * $inventory->products_sold;
         });
+
+        // Calculate sales value when updating the record
+        static::updating(function ($inventory) {
+            if ($inventory->isDirty('products_sold') || $inventory->isDirty('price')) {
+                // Recalculate the sales value when products_sold or price is updated
+                $inventory->sales_value = $inventory->price * $inventory->products_sold;
+            } else if ($inventory->isDirty('quantity_on_hand')) {
+                // Recalculate the inventory value when quantity_on_hand is updated
+                $inventory->inventory_value = $inventory->price * $inventory->quantity_on_hand;
+            }
+        });
     }
 }
+
