@@ -181,4 +181,37 @@ class InventoryController extends Controller
 
         return response()->json(['error' => 'Unable to import inventory.'], 500);
     }
+
+    // GET top-selling products
+    public function getTopSellingProducts()
+    {
+        $topSellingProducts = Inventory::orderBy('products_sold', 'desc')
+            ->take(10) // You can limit the number of top-selling products
+            ->get(['brand_name', 'products_sold', 'sales_value']); // Fetch only relevant fields
+
+        if ($topSellingProducts->isEmpty()) {
+            return response()->json(['message' => 'No top-selling products found'], 404);
+        }
+
+        return response()->json($topSellingProducts);
+    }
+
+    // GET low stock items
+    public function getLowStockItems()
+    {
+        $threshold = 100; // You can define the threshold here or pass it as a parameter
+
+        $lowStockItems = Inventory::where('quantity_on_hand', '<', $threshold)
+            ->take(10)
+            ->get(['brand_name', 'type', 'quantity_on_hand']); // Fetch only relevant fields
+
+        if ($lowStockItems->isEmpty()) {
+            return response()->json(['message' => 'No low-stock items found'], 404);
+        }
+
+        return response()->json([
+            'threshold' => $threshold,
+            'lowStockItems' => $lowStockItems
+        ]);
+    }
 }

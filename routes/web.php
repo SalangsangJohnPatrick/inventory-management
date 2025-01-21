@@ -21,6 +21,8 @@ $router->get('/GetAllInventoryItems', 'InventoryController@index');
 $router->get('/GetSpecificInventoryItem/{id}', 'InventoryController@show');
 $router->get('/SortInventoryItems/{column}/{order}', 'InventoryController@sort');
 $router->get('/InventoryValuationReport/{type}', 'InventoryController@valuationReport');
+$router->get('/GetTopSellingProducts', 'InventoryController@getTopSellingProducts');
+$router->get('/GetLowStockItems', 'InventoryController@getLowStockItems');
 $router->post('/CreateInventoryItem', 'InventoryController@store');
 $router->post('/ImportInventoryItems', 'InventoryController@import');
 $router->put('/UpdateInventoryItem/{id}', 'InventoryController@update');
