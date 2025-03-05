@@ -5,13 +5,23 @@ namespace App\Http\Controllers;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Throwable;
 
 class InventoryController extends Controller
 {
     // GET all products
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(Inventory::all());
+        try {
+            $sortField = $request->input('sortField', 'id');
+            $sortOrder = $request->input('sortOrder', 'ASC');
+
+            $inventories = Inventory::orderBy($sortField, $sortOrder)->get();
+
+            return response()->json($inventories);
+        } catch (Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     // GET a specific product
