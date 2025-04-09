@@ -15,10 +15,35 @@ class InventoryController extends Controller
         try {
             $sortField = $request->input('sortField', 'id');
             $sortOrder = $request->input('sortOrder', 'ASC');
+            $search = $request->input('search');
+            $currentPage = $request->input('currentPage', 1);
+            $itemsPerPage = $request->input('itemsPerPage', 10);
 
-            $inventories = Inventory::orderBy($sortField, $sortOrder)->get();
+            $query = Inventory::orderBy($sortField, $sortOrder);
 
-            return response()->json($inventories);
+            if ($search) {
+                $query->where('brand_name', 'like', '%' . $search . '%')
+                    ->orWhere('type', 'like', '%' . $search . '%')
+                    ->orWhere('quantity_on_hand', 'like', '%' . $search . '%')
+                    ->orWhere('price', 'like', '%' . $search . '%')
+                    ->orWhere('products_sold', 'like', '%' . $search . '%')
+                    ->orWhere('inventory_value', 'like', '%' . $search . '%')
+                    ->orWhere('sales_value', 'like', '%' . $search . '%');
+            }
+
+            $inventories = $query->paginate($itemsPerPage, ['*'], 'page', $currentPage);
+
+            return response()->json([
+                'data' => $inventories->items(),
+                'pagination' => [
+                    'total' => $inventories->total(),
+                    'per_page' => $inventories->perPage(),
+                    'current_page' => $inventories->currentPage(),
+                    'last_page' => $inventories->lastPage(),
+                    'from' => $inventories->firstItem(),
+                    'to' => $inventories->lastItem(),
+                ],
+            ]);
         } catch (Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
