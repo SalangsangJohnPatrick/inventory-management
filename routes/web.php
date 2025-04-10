@@ -17,7 +17,8 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->get('/GetAllInventoryItems', 'InventoryController@index');
+$router->post('/GetAllInventoryItems', 'InventoryController@index');
+$router->get('/GetInventoryDropdown', 'InventoryController@getInventoryDropdown');
 $router->get('/GetSpecificInventoryItem/{id}', 'InventoryController@show');
 $router->get('/SortInventoryItems/{column}/{order}', 'InventoryController@sort');
 $router->get('/InventoryValuationReport/{type}', 'InventoryController@valuationReport');

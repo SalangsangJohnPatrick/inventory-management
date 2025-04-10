@@ -18,6 +18,7 @@ class InventoryController extends Controller
             $search = $request->input('search');
             $currentPage = $request->input('currentPage', 1);
             $itemsPerPage = $request->input('itemsPerPage', 10);
+            $filters = $request->input('filterForm');
 
             $query = Inventory::orderBy($sortField, $sortOrder);
 
@@ -30,6 +31,19 @@ class InventoryController extends Controller
                     ->orWhere('inventory_value', 'like', '%' . $search . '%')
                     ->orWhere('sales_value', 'like', '%' . $search . '%');
             }
+
+            // Apply filters
+            if (!empty($filters) && is_array($filters)) {
+                foreach ($filters as $column => $value) {
+                    if (!is_null($value) && $value !== '') {
+                        if ($column === 'brand_name') {
+                            $query->where('id', $value);
+                        } else {
+                            $query->where($column, $value);
+                        }
+                    }
+                }
+            }            
 
             $inventories = $query->paginate($itemsPerPage, ['*'], 'page', $currentPage);
 
@@ -47,6 +61,15 @@ class InventoryController extends Controller
         } catch (Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
+
+    public function getInventoryDropdown()
+    {
+        $inventories = Inventory::select('id', 'brand_name', 'type')
+                        ->distinct()
+                        ->get();
+    
+        return response()->json($inventories);
     }
 
     // GET a specific product
