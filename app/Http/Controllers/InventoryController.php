@@ -17,7 +17,7 @@ class InventoryController extends Controller
             $sortOrder = $request->input('sortOrder', 'ASC');
             $search = $request->input('search');
             $currentPage = $request->input('currentPage', 1);
-            $itemsPerPage = $request->input('itemsPerPage', 10);
+            $itemsPerPage = $request->input('itemsPerPage', 20);
             $filters = $request->input('filterForm');
 
             $query = Inventory::orderBy($sortField, $sortOrder);
@@ -176,11 +176,13 @@ class InventoryController extends Controller
         $totalSalesValue = $inventoryItems->sum('sales_value');
 
         return response()->json([
-            'type' => $type,
-            'totalQuantity' => $totalQuantity,
-            'totalInventoryValue' => $totalInventoryValue,
-            'totalProductsSold' => $totalProductsSold,
-            'totalSalesValue' => $totalSalesValue,
+            'data' => [
+                'type' => $type,
+                'totalQuantity' => $totalQuantity,
+                'totalInventoryValue' => $totalInventoryValue,
+                'totalProductsSold' => $totalProductsSold,
+                'totalSalesValue' => $totalSalesValue,
+            ]
         ]);
     }
 
@@ -269,7 +271,7 @@ class InventoryController extends Controller
 
         return response()->json([
             'threshold' => $threshold,
-            'lowStockItems' => $lowStockItems
+            'data' => $lowStockItems
         ]);
     }
 }
