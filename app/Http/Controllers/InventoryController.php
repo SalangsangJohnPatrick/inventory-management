@@ -36,14 +36,10 @@ class InventoryController extends Controller
             if (!empty($filters) && is_array($filters)) {
                 foreach ($filters as $column => $value) {
                     if (!is_null($value) && $value !== '') {
-                        if ($column === 'brand_name') {
-                            $query->where('id', $value);
-                        } else {
-                            $query->where($column, $value);
-                        }
+                        $query->where($column, $value);
                     }
                 }
-            }            
+            }      
 
             $inventories = $query->paginate($itemsPerPage, ['*'], 'page', $currentPage);
 
@@ -65,11 +61,12 @@ class InventoryController extends Controller
 
     public function getInventoryDropdown()
     {
-        $inventories = Inventory::select('id', 'brand_name', 'type')
-                        ->distinct()
-                        ->get();
-    
-        return response()->json($inventories);
+        $filter = [
+            'brand_names' => Inventory::select('brand_name')->distinct()->pluck('brand_name'),
+            'types' => Inventory::select('type')->distinct()->pluck('type'),
+        ];
+
+        return response()->json($filter);
     }
 
     // GET a specific product
