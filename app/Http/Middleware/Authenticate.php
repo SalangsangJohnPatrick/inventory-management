@@ -33,12 +33,14 @@ class Authenticate
      * @param  string|null  $guard
      * @return mixed
      */
-    public function handle($request, Closure $next, $guard = null)
+    public function handle($request, Closure $next, ...$guards)
     {
-        if ($this->auth->guard($guard)->guest()) {
-            return response('Unauthorized.', 401);
+        try {
+            $user = JWTAuth::parseToken()->authenticate();
+        } catch (Throwable $e) {
+            return response()->json(['error' => 'Unauthorized'], 401);
         }
-
+    
         return $next($request);
-    }
+    }    
 }

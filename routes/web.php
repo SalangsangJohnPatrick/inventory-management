@@ -17,15 +17,20 @@ $router->get('/', function () use ($router) {
     return $router->app->version();
 });
 
-$router->post('/GetAllInventoryItems', 'InventoryController@index');
-$router->get('/GetInventoryDropdown', 'InventoryController@getInventoryDropdown');
-$router->get('/GetSpecificInventoryItem/{id}', 'InventoryController@show');
-$router->get('/SortInventoryItems/{column}/{order}', 'InventoryController@sort');
-$router->get('/InventoryValuationReport/{type}', 'InventoryController@valuationReport');
-$router->get('/GetTopSellingProducts', 'InventoryController@getTopSellingProducts');
-$router->get('/GetLowStockItems', 'InventoryController@getLowStockItems');
-$router->post('/CreateInventoryItem', 'InventoryController@store');
-$router->post('/ImportInventoryItems', 'InventoryController@import');
-$router->put('/UpdateInventoryItem/{id}', 'InventoryController@update');
-$router->delete('/DeleteInventoryItem/{id}', 'InventoryController@destroy');
+$router->post('/signup', 'AuthController@signup');
+$router->post('/login', 'AuthController@login');
+
+$router->group(['middleware' => 'auth'], function () use ($router) {    
+    $router->post('/GetAllInventoryItems', 'InventoryController@index');
+    $router->get('/GetInventoryDropdown', 'InventoryController@getInventoryDropdown');
+    $router->get('/GetSpecificInventoryItem/{id}', 'InventoryController@show');
+    $router->get('/SortInventoryItems/{column}/{order}', 'InventoryController@sort');
+    $router->get('/InventoryValuationReport/{type}', 'InventoryController@valuationReport');
+    $router->get('/GetTopSellingProducts', 'InventoryController@getTopSellingProducts');
+    $router->get('/GetLowStockItems', 'InventoryController@getLowStockItems');
+    $router->post('/CreateInventoryItem', 'InventoryController@store');
+    $router->post('/ImportInventoryItems', 'InventoryController@import');
+    $router->put('/UpdateInventoryItem/{id}', 'InventoryController@update');
+    $router->delete('/DeleteInventoryItem/{id}', 'InventoryController@destroy');
+});
 
