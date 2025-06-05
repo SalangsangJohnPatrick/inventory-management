@@ -12,35 +12,55 @@ class AuthController extends Controller
 {
     public function signup(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|email|unique:users,email',
-            'password' => 'required|string|min:8',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name'     => 'required|string|max:255',
+                'email'    => 'required|email|unique:users,email',
+                'password' => 'required|string|min:8',
+            ]);
 
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                return response()->json([
+                    'success' => false,
+                    'message' => implode("\n", $errors) // convert to single string separated by line breaks
+                ], 422);
+            }
+
+            $user = User::create([
+                'name'     => $request->name,
+                'email'    => $request->email,
+                'password' => $request->password,
+            ]);
+
+            $token = JWTAuth::fromUser($user);
+
+            return response()->json(['token' => $token], 201);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Signup failed. Please try again.', 
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        $user = User::create([
-            'name'     => $request->name,
-            'email'    => $request->email,
-            'password' => $request->password,
-        ]);
-
-        $token = JWTAuth::fromUser($user);
-
-        return response()->json(['token' => $token], 201);
     }
 
     public function login(Request $request)
     {
-        $credentials = $request->only(['email', 'password']);
-    
-        if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Invalid credentials'], 401);
+        try {
+            $credentials = $request->only(['email', 'password']);
+
+            if (!$token = auth()->attempt($credentials)) {
+                return response()->json(['error' => 'Please check your credentials.'], 401);
+            }
+
+            return response()->json(['token' => $token]);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => 'Login failed. Please try again.', 
+                'message' => $e->getMessage()
+            ], 500);
         }
-    
-        return response()->json(['token' => $token]);
     }
 }
